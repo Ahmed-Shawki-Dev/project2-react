@@ -1,27 +1,29 @@
-import { formInputList, productList as initialProducts } from "./data";
+import { formInputList, productList } from "./data";
 import ProductCard from "./components/ProductCard";
 import Modal from "./UI/Modal";
 import Button from "./UI/Button";
-import { ChangeEvent, useState, MouseEvent } from "react";
+import { ChangeEvent, FormEvent, useState} from "react";
 import Input from "./UI/Input";
 import { IProduct } from "./interfaces";
+import { productValidation } from "./validation";
 function App() {
+/*  ---------------Obj---------------------   */
+const productObj={title: "",
+description: "",
+imageURL: "",
+price: "",
+colors: [],
+category: {
+  name: "",
+  imageURL: "",
+}
+}
+
+  
   /*_________State _________*/
   const [isOpen, setIsOpen] = useState(false);
 
-  const [product, setProduct] = useState<IProduct>({
-    title: "",
-    description: "",
-    imageURL: "",
-    price: "",
-    colors: [],
-    category: {
-      name: "",
-      imageURL: "",
-    },
-  });
-
-  const [productList, setProductList] = useState<IProduct[]>(initialProducts);
+  const [product, setProduct] = useState<IProduct>(productObj);
 
   /* _________ Handler _________ */
   function open() {
@@ -41,25 +43,15 @@ function App() {
   };
 
   const onClose = () => {
-    setProduct({
-      title: "",
-      description: "",
-      imageURL: "",
-      price: "",
-      colors: [],
-      category: {
-        name: "",
-        imageURL: "",
-      },
-    });
+    setProduct(productObj);
     close();
   };
 
-  function addHandler(event: MouseEvent<HTMLButtonElement>): void {
-    event.preventDefault();
-    setProductList((prevList) => [...prevList, product]);
-    console.log(product);
-    onClose(); // تقفل المودال بعد الإضافة وتفضي الفورم
+  const submitHandler=(e:FormEvent<HTMLFormElement>):void=>{
+    e.preventDefault();
+    const errors= productValidation({title:product.title,description:product.description,imageURL:product.imageURL,price:product.price})
+    
+    console.log(errors);
   }
 
   /*_________ Render _________*/
@@ -92,20 +84,17 @@ function App() {
       </div>
 
       <Modal close={close} isOpen={isOpen} title="Add A Product">
-        <form action="" className="space-y-3">
+        <form action="" className="space-y-3" onSubmit={submitHandler}>
           {renderFormInputList}
           <div className="flex gap-2 mt-4">
-            <Button
-              className="w-full text-white bg-blue-500 hover:bg-blue-700"
-              onClick={addHandler}
+            <Button className="w-full text-white bg-blue-500 hover:bg-blue-700"
+            
             >
               Submit
             </Button>
             <Button
               className="w-full text-white bg-gray-300 hover:bg-gray-400"
-              onClick={() => {
-                onClose;
-              }}
+              onClick={onClose}
             >
               Close
             </Button>
