@@ -2,28 +2,32 @@ import { formInputList, productList } from "./data";
 import ProductCard from "./components/ProductCard";
 import Modal from "./UI/Modal";
 import Button from "./UI/Button";
-import { ChangeEvent, FormEvent, useState} from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import Input from "./UI/Input";
 import { IProduct } from "./interfaces";
 import { productValidation } from "./validation";
-function App() {
-/*  ---------------Obj---------------------   */
-const productObj={title: "",
-description: "",
-imageURL: "",
-price: "",
-colors: [],
-category: {
-  name: "",
-  imageURL: "",
-}
-}
+import ErrorMessage from "./components/ErrorMessage";
 
-  
+function App() {
+  /*  ---------------Obj---------------------   */
+  const productObj = {
+    title: "",
+    description: "",
+    imageURL: "",
+    price: "",
+    colors: [],
+    category: {
+      name: "",
+      imageURL: "",
+    },
+  };
+
   /*_________State _________*/
   const [isOpen, setIsOpen] = useState(false);
 
   const [product, setProduct] = useState<IProduct>(productObj);
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   /* _________ Handler _________ */
   function open() {
@@ -34,6 +38,11 @@ category: {
     setIsOpen(false);
   }
 
+  const onClose = () => {
+    setProduct(productObj);
+    close();
+  };
+
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProduct((prev) => ({
@@ -42,17 +51,12 @@ category: {
     }));
   };
 
-  const onClose = () => {
-    setProduct(productObj);
-    close();
-  };
-
-  const submitHandler=(e:FormEvent<HTMLFormElement>):void=>{
+  const submitHandler = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    const errors= productValidation({title:product.title,description:product.description,imageURL:product.imageURL,price:product.price})
-    
+    const validationErrors = productValidation(product);
+    setErrors(validationErrors);
     console.log(errors);
-  }
+  };
 
   /*_________ Render _________*/
   const renderProductList = productList.map((product) => (
@@ -71,6 +75,7 @@ category: {
         value={product[input.name]}
         onChange={onChangeHandler}
       />
+      <ErrorMessage message={errors[input.name]} />
     </div>
   ));
 
@@ -87,9 +92,7 @@ category: {
         <form action="" className="space-y-3" onSubmit={submitHandler}>
           {renderFormInputList}
           <div className="flex gap-2 mt-4">
-            <Button className="w-full text-white bg-blue-500 hover:bg-blue-700"
-            
-            >
+            <Button className="w-full text-white bg-blue-500 hover:bg-blue-700">
               Submit
             </Button>
             <Button

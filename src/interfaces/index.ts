@@ -17,8 +17,4 @@ id:string;
 name:'title' | 'description' | 'imageURL' | 'price';
 label:string;
 type:string;
-
-
-
-
 }

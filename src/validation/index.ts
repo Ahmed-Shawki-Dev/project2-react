@@ -2,12 +2,15 @@ export const productValidation = (product: {
   title: string;
   description: string;
   imageURL: string;
-  price:string;
+  price: string;
 }) => {
-    // ** Returns Object
+  // ** Returns Object
 
-const validURL=/(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+(\/[^\s]*)?/.test(product.imageURL);
-    
+  const validURL =
+    /(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+(\/[^\s]*)?/.test(
+      product.imageURL
+    );
+
   const errors = {
     title: "",
     description: "",
@@ -29,19 +32,15 @@ const validURL=/(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+(\/[^\s]*)?/
     product.description.length > 900
   ) {
     errors.description = "Produt Descripton Error";
-}
+  }
 
-if(!validURL || !product.imageURL.trim()){
-    
+  if (!validURL || !product.imageURL.trim()) {
     errors.imageURL = "Produt Image URL Error";
   }
 
-if(!product.price.trim() || isNaN(Number(product.price))){
-    
+  if (!product.price.trim() || isNaN(Number(product.price))) {
     errors.price = "Produt Price URL Error";
   }
-
-
 
   return errors;
 };
