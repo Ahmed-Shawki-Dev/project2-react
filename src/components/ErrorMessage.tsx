@@ -6,7 +6,7 @@ const ErrorMessage = ({ message }: IProps) => {
   if (!message) return null
 
   return message ? (
-    <p className="block text-sm text-red-700 font-bold">{message}</p>
+    <p className="text-sm text-red-600 font-semibold">{message}</p>
   ) : null
 }
 

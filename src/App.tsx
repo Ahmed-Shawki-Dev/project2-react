@@ -27,7 +27,12 @@ function App() {
 
   const [product, setProduct] = useState<IProduct>(productObj)
 
-  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [errors, setErrors] = useState<{ [key: string]: string }>({
+    title: '',
+    description: '',
+    imageURL: '',
+    price: '',
+  })
 
   /* _________ Handler _________ */
   function open() {
@@ -49,17 +54,25 @@ function App() {
       ...prev,
       [name]: value,
     }))
+
+    setErrors({
+      ...errors,
+      [name]: '',
+    })
   }
 
   const submitHandler = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault()
-    
+
     const validationErrors = productValidation(product)
-    const hasErrorMsg = Object.values(validationErrors).some(value=>value==='') && Object.values(validationErrors).every(value=> value==='');
-    if(!hasErrorMsg){
+    const hasErrorMsg =
+      Object.values(validationErrors).some(value => value === '') &&
+      Object.values(validationErrors).every(value => value === '')
+    if (!hasErrorMsg) {
       setErrors(validationErrors)
-      return;
-    }}
+      return
+    }
+  }
 
   /*_________ Render _________*/
   const renderProductList = productList.map(product => (
