@@ -53,10 +53,13 @@ function App() {
 
   const submitHandler = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault()
+    
     const validationErrors = productValidation(product)
-    setErrors(validationErrors)
-    console.log(errors)
-  }
+    const hasErrorMsg = Object.values(validationErrors).some(value=>value==='') && Object.values(validationErrors).every(value=> value==='');
+    if(!hasErrorMsg){
+      setErrors(validationErrors)
+      return;
+    }}
 
   /*_________ Render _________*/
   const renderProductList = productList.map(product => (
