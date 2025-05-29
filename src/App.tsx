@@ -1,4 +1,4 @@
-import { formInputList, productList } from './data'
+import { formInputList, productList, colors } from './data'
 import ProductCard from './components/ProductCard'
 import Modal from './UI/Modal'
 import Button from './UI/Button'
@@ -7,6 +7,7 @@ import Input from './UI/Input'
 import { IProduct } from './interfaces'
 import { productValidation } from './validation'
 import ErrorMessage from './components/ErrorMessage'
+import CircleColor from './components/CircleColor'
 
 function App() {
   /*  ---------------Obj---------------------   */
@@ -33,6 +34,9 @@ function App() {
     imageURL: '',
     price: '',
   })
+
+  const [tempColor, setTempColor] = useState<string[]>([])
+  console.log(tempColor)
 
   /* _________ Handler _________ */
   function open() {
@@ -74,6 +78,13 @@ function App() {
     }
   }
 
+  const colorHandler = (color: string): void => {
+    setTempColor(prev =>
+      prev.includes(color) ? prev.filter(c => c !== color) : [...prev, color]
+    )
+  }
+
+
   /*_________ Render _________*/
   const renderProductList = productList.map(product => (
     <ProductCard key={product.id} product={product} />
@@ -95,6 +106,14 @@ function App() {
     </div>
   ))
 
+  const circleColorList = colors.map(color => (
+    <CircleColor
+      color={color}
+      key={color}
+      onClick={() => colorHandler(color)}
+    />
+  ))
+
   return (
     <main className="container mx-auto">
       <Button className="my-5 bg-indigo-500" onClick={open}>
@@ -107,6 +126,16 @@ function App() {
       <Modal close={close} isOpen={isOpen} title="Add A Product">
         <form action="" className="space-y-3" onSubmit={submitHandler}>
           {renderFormInputList}
+
+          <div className='flex space-x-1 flex-wrap space-y-1'>
+          {tempColor.map(color=>(
+            <span key={color} className='rounded-xl p-0.5 text-white h-fit' style={{backgroundColor:color}}>{color}</span>
+          ))}
+          </div>
+
+          <div className="flex gap-1 flex-wrap">{circleColorList}</div>
+
+
           <div className="flex gap-2 mt-4">
             <Button className="w-full text-white bg-blue-500 hover:bg-blue-700">
               Submit

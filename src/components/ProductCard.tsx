@@ -11,7 +11,6 @@ const ProductCard = ({ product }: IProps) => {
   return (
     <div className="border border-gray-300 rounded-md p-4 bg-white max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto flex flex-col gap-4 shadow-md">
 
-      {/* الصورة */}
       <div className="w-full h-60 overflow-hidden rounded-md">
         <Image
           imageURL={product.imageURL}
@@ -20,24 +19,20 @@ const ProductCard = ({ product }: IProps) => {
         />
       </div>
 
-      {/* العنوان */}
       <h3 className="font-bold text-blue-700 text-2xl">
         {product.title}
       </h3>
 
-      {/* الوصف */}
       <p className="text-gray-800 text-base">
         {textSlice(product.description)}
       </p>
 
-      {/* الألوان */}
       <div className="flex flex-row gap-2">
         <span className="w-5 h-5 bg-blue-400 rounded-full"></span>
         <span className="w-5 h-5 bg-red-300 rounded-full"></span>
         <span className="w-5 h-5 bg-amber-300 rounded-full"></span>
       </div>
 
-      {/* السعر والصورة الجانبية */}
       <div className="flex justify-between items-center">
         <span className="text-lg font-semibold text-blue-950">${product.price}</span>
         <img
