@@ -1,69 +1,69 @@
-import { formInputList, productList } from "./data";
-import ProductCard from "./components/ProductCard";
-import Modal from "./UI/Modal";
-import Button from "./UI/Button";
-import { ChangeEvent, FormEvent, useState } from "react";
-import Input from "./UI/Input";
-import { IProduct } from "./interfaces";
-import { productValidation } from "./validation";
-import ErrorMessage from "./components/ErrorMessage";
+import { formInputList, productList } from './data'
+import ProductCard from './components/ProductCard'
+import Modal from './UI/Modal'
+import Button from './UI/Button'
+import { ChangeEvent, FormEvent, useState } from 'react'
+import Input from './UI/Input'
+import { IProduct } from './interfaces'
+import { productValidation } from './validation'
+import ErrorMessage from './components/ErrorMessage'
 
 function App() {
   /*  ---------------Obj---------------------   */
   const productObj = {
-    title: "",
-    description: "",
-    imageURL: "",
-    price: "",
+    title: '',
+    description: '',
+    imageURL: '',
+    price: '',
     colors: [],
     category: {
-      name: "",
-      imageURL: "",
+      name: '',
+      imageURL: '',
     },
-  };
+  }
 
   /*_________State _________*/
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
-  const [product, setProduct] = useState<IProduct>(productObj);
+  const [product, setProduct] = useState<IProduct>(productObj)
 
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   /* _________ Handler _________ */
   function open() {
-    setIsOpen(true);
+    setIsOpen(true)
   }
 
   function close() {
-    setIsOpen(false);
+    setIsOpen(false)
   }
 
   const onClose = () => {
-    setProduct(productObj);
-    close();
-  };
+    setProduct(productObj)
+    close()
+  }
 
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProduct((prev) => ({
+    const { name, value } = e.target
+    setProduct(prev => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const submitHandler = (e: FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    const validationErrors = productValidation(product);
-    setErrors(validationErrors);
-    console.log(errors);
-  };
+    e.preventDefault()
+    const validationErrors = productValidation(product)
+    setErrors(validationErrors)
+    console.log(errors)
+  }
 
   /*_________ Render _________*/
-  const renderProductList = productList.map((product) => (
+  const renderProductList = productList.map(product => (
     <ProductCard key={product.id} product={product} />
-  ));
+  ))
 
-  const renderFormInputList = formInputList.map((input) => (
+  const renderFormInputList = formInputList.map(input => (
     <div className="flex flex-col gap-2" key={input.id}>
       <label htmlFor={input.id} className="mt-[2px] text-gray-700 ">
         {input.label}
@@ -77,7 +77,7 @@ function App() {
       />
       <ErrorMessage message={errors[input.name]} />
     </div>
-  ));
+  ))
 
   return (
     <main className="container mx-auto">
@@ -105,7 +105,7 @@ function App() {
         </form>
       </Modal>
     </main>
-  );
+  )
 }
 
-export default App;
+export default App
