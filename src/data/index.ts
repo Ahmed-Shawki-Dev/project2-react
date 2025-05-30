@@ -1,4 +1,4 @@
-import { IFormInput, IProduct } from '../interfaces'
+import { ICategory, IFormInput, IProduct } from '../interfaces'
 import { v4 as uuid } from 'uuid'
 
 export const productList: IProduct[] = [
@@ -10,7 +10,7 @@ export const productList: IProduct[] = [
     imageURL:
       'https://img.overclockers.co.uk/products/OCUK-BU-088-AS/2211-bu-088-as-image1.jpg',
     price: '3000',
-    colors: ['#FF6F61', '#4CAF50', '#FFEB3B'],
+    colors: ['#FF6F12', '#4CAF50', '#FFEB3B'],
     category: {
       name: 'Bundle',
       imageURL:
@@ -233,6 +233,20 @@ export const colors: string[] = [
   '#4682B4',
   '#9932CC',
   '#8B4513',
-  '#3B3B3B'
+  '#3B3B3B',
 ]
 
+export const categories: ICategory[] = [
+  {
+    id: uuid(),
+    name: 'PC',
+    imageURL:
+      'https://static.vecteezy.com/system/resources/previews/005/029/311/non_2x/desktop-computer-monitor-line-icon-outline-sign-linear-style-pictogram-isolated-on-white-symbol-logo-illustration-editable-stroke-pixel-perfect-free-vector.jpg',
+  },
+  {
+    id: uuid(),
+    name: 'Laptop',
+    imageURL:
+      'https://static.vecteezy.com/system/resources/previews/000/551/079/non_2x/laptop-computer-vector-icon.jpg',
+  },
+]

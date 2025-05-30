@@ -1,4 +1,4 @@
-import { formInputList, productList, colors } from './data'
+import { formInputList, productList, colors, categories } from './data'
 import ProductCard from './components/ProductCard'
 import Modal from './UI/Modal'
 import Button from './UI/Button'
@@ -8,6 +8,9 @@ import { IProduct } from './interfaces'
 import { productValidation } from './validation'
 import ErrorMessage from './components/ErrorMessage'
 import CircleColor from './components/CircleColor'
+import { v4 as uuid } from 'uuid'
+import Select from './UI/Select'
+
 
 function App() {
   /*  ---------------Obj---------------------   */
@@ -27,6 +30,8 @@ function App() {
   const [isOpen, setIsOpen] = useState(false)
 
   const [product, setProduct] = useState<IProduct>(productObj)
+  
+  const [products, setProducts] = useState<IProduct[]>(productList)
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({
     title: '',
@@ -36,8 +41,8 @@ function App() {
   })
 
   const [tempColor, setTempColor] = useState<string[]>([])
-  console.log(tempColor)
 
+  const [selectedCategory,setSelectedCategory] = useState(categories[0]);
   /* _________ Handler _________ */
   function open() {
     setIsOpen(true)
@@ -64,7 +69,6 @@ function App() {
       [name]: '',
     })
   }
-
   const submitHandler = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault()
 
@@ -76,6 +80,16 @@ function App() {
       setErrors(validationErrors)
       return
     }
+      
+    setProducts(prev => [
+      { ...product, id: uuid(), colors: tempColor, category:selectedCategory},
+      ...prev,
+    ])
+    setProduct(productObj);
+    setTempColor([]);
+    onClose();
+
+
   }
 
   const colorHandler = (color: string): void => {
@@ -86,7 +100,7 @@ function App() {
 
 
   /*_________ Render _________*/
-  const renderProductList = productList.map(product => (
+  const renderProductList = products.map(product => (
     <ProductCard key={product.id} product={product} />
   ))
 
@@ -119,36 +133,44 @@ function App() {
       <Button className="my-5 bg-indigo-500" onClick={open}>
         ADD
       </Button>
-      <div className="grid grid-cols-1 m-5 rounded-md md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-evenly md:gap-4">
+      <div className="flex flex-wrap justify-between gap-4 m-5 rounded-md">
         {renderProductList}
       </div>
 
-      <Modal close={close} isOpen={isOpen} title="Add A Product">
-        <form action="" className="space-y-3" onSubmit={submitHandler}>
-          {renderFormInputList}
 
-          <div className='flex space-x-1 flex-wrap space-y-1'>
-          {tempColor.map(color=>(
-            <span key={color} className='rounded-xl p-0.5 text-white h-fit' style={{backgroundColor:color}}>{color}</span>
-          ))}
-          </div>
+        <Modal close={close} isOpen={isOpen} title="Add A Product">
+          <form action="" className="space-y-3 overflow-hidden" onSubmit={submitHandler}>
+            {renderFormInputList}
 
-          <div className="flex gap-1 flex-wrap">{circleColorList}</div>
+            <Select selected={selectedCategory} setSelected={setSelectedCategory} />
 
+            <div className="flex space-x-1 flex-wrap space-y-1">
+              {tempColor.map(color => (
+                <span
+                  key={color}
+                  className="rounded-xl p-0.5 text-white h-fit"
+                  style={{ backgroundColor: color }}
+                >
+                  {color}
+                </span>
+              ))}
+            </div>
 
-          <div className="flex gap-2 mt-4">
-            <Button className="w-full text-white bg-blue-500 hover:bg-blue-700">
-              Submit
-            </Button>
-            <Button
-              className="w-full text-white bg-gray-300 hover:bg-gray-400"
-              onClick={onClose}
-            >
-              Close
-            </Button>
-          </div>
-        </form>
-      </Modal>
+            <div className="flex gap-1 flex-wrap">{circleColorList}</div>
+
+            <div className="flex gap-2 mt-4">
+              <Button className="w-full text-white bg-blue-500 hover:bg-blue-700">
+                Submit
+              </Button>
+              <Button
+                className="w-full text-white bg-gray-300 hover:bg-gray-400"
+                onClick={onClose}
+              >
+                Close
+              </Button>
+            </div>
+          </form>
+        </Modal>
     </main>
   )
 }
