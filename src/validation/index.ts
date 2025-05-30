@@ -3,6 +3,7 @@ export const productValidation = (product: {
   description: string
   imageURL: string
   price: string
+  colors: string[]
 }) => {
   // ** Return Object
   const errors: {
@@ -10,11 +11,13 @@ export const productValidation = (product: {
     description: string
     imageURL: string
     price: string
+    colors: string
   } = {
     title: '',
     description: '',
     imageURL: '',
     price: '',
+    colors: '',
   }
 
   if (
@@ -44,6 +47,10 @@ export const productValidation = (product: {
 
   if (!product.price.trim() || isNaN(Number(product.price))) {
     errors.price = 'Produt Price Not Valid'
+  }
+
+  if (product.colors.length === 0) {
+    errors.colors = 'Set Colors'
   }
 
   return errors
