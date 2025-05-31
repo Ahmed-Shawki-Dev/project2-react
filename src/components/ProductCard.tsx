@@ -8,9 +8,17 @@ interface IProps {
   product: IProduct
   setUpdatedProduct: (product: IProduct) => void
   openEdit: () => void
+  setUpdatedProductIdx:(num:number)=>void
+  idx:number
 }
 
-const ProductCard = ({ product, setUpdatedProduct, openEdit }: IProps) => {
+const ProductCard = ({
+  product,
+  setUpdatedProduct,
+  openEdit,
+  setUpdatedProductIdx,
+  idx,
+}: IProps) => {
   const circleColorList = product.colors.map(color => (
     <CircleColor color={color} key={color} />
   ))
@@ -18,6 +26,7 @@ const ProductCard = ({ product, setUpdatedProduct, openEdit }: IProps) => {
   /*_________ Handler _________*/
   const onEdit = () => {
     setUpdatedProduct(product)
+    setUpdatedProductIdx(idx)
     openEdit()
   }
 

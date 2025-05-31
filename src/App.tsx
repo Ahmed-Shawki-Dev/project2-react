@@ -10,11 +10,12 @@ import ErrorMessage from './components/ErrorMessage'
 import CircleColor from './components/CircleColor'
 import { v4 as uuid } from 'uuid'
 import Select from './UI/Select'
+import { TInputName } from './types'
 
 function App() {
   /*  ---------------Obj---------------------   */
   const productObj = {
-    id:'',
+    id: '',
     title: '',
     description: '',
     imageURL: '',
@@ -28,14 +29,15 @@ function App() {
 
   /*_________State _________*/
   const [isOpen, setIsOpen] = useState(false)
-  
+
   const [isEditOpen, setIsEditOpen] = useState(false)
 
   const [product, setProduct] = useState<IProduct>(productObj)
 
   const [updatedProduct, setUpdatedProduct] = useState<IProduct>(productObj)
-  console.log(updatedProduct)
   
+  const [updatedProductIdx, setUpdatedProductIdx] = useState<number>(0)
+
   const [products, setProducts] = useState<IProduct[]>(productList)
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({
@@ -51,6 +53,13 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState(categories[0])
   /* _________ Handler _________ */
   function open() {
+    setErrors({
+      title: '',
+      description: '',
+      imageURL: '',
+      price: '',
+      colors: '',
+    })
     setIsOpen(true)
   }
 
@@ -59,25 +68,41 @@ function App() {
   }
 
   function openEdit() {
+    setErrors({
+      title: '',
+      description: '',
+      imageURL: '',
+      price: '',
+      colors: '',
+    })
     setIsEditOpen(true)
-    
   }
-      function closeEdit() {
-        setIsEditOpen(false)
-      }
-
-
-
-  
+  function closeEdit() {
+    setIsEditOpen(false)
+  }
 
   const onClose = () => {
     setProduct(productObj)
+    setTempColor([])
+    setSelectedCategory(categories[0])
     close()
   }
 
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setProduct(prev => ({
+      ...prev,
+      [name]: value,
+    }))
+    setErrors({
+      ...errors,
+      [name]: '',
+    })
+  }
+
+  const onChangeUpdateHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setUpdatedProduct(prev => ({
       ...prev,
       [name]: value,
     }))
@@ -113,23 +138,60 @@ function App() {
     onClose()
   }
 
+
+  const submitUpdateHandler = (e: FormEvent<HTMLFormElement>): void => {
+    e.preventDefault()
+    const { title, description, price, imageURL, colors } = updatedProduct
+
+    const validationErrors = productValidation({
+      title,
+      description,
+      price,
+      imageURL,
+      colors
+    })
+    const hasErrorMsg = Object.values(validationErrors).some(
+      value => value !== ''
+    )
+
+    if (hasErrorMsg) {
+      setErrors(validationErrors)
+      console.log(validationErrors)
+      return
+    }
+
+
+      const updatedProducts=[...products];
+      updatedProducts[updatedProductIdx] = updatedProduct
+      setProducts(updatedProducts);
+
+
+
+
+    setUpdatedProduct(productObj)
+    setTempColor([])
+    closeEdit()
+  }
+
   const colorHandler = (color: string): void => {
     setTempColor(prev =>
       prev.includes(color) ? prev.filter(c => c !== color) : [...prev, color]
     )
     setErrors(prev => ({ ...prev, colors: '' }))
   }
-
+console.log(updatedProductIdx)
   /*_________ Render _________*/
-  const renderProductList = products.map(product => (
-    <ProductCard
-      key={product.id}
-      product={product}
-      setUpdatedProduct={setUpdatedProduct}
-      openEdit={openEdit}
-    />
+  const renderProductList = products.map((product, idx) => (
+      <ProductCard
+        key={product.id}
+        product={product}
+        setUpdatedProduct={setUpdatedProduct}
+        openEdit={openEdit}
+        setUpdatedProductIdx={setUpdatedProductIdx}
+        idx={idx}
+      />
   ))
-
+  
   const renderFormInputList = formInputList.map(input => (
     <div className="flex flex-col gap-2" key={input.id}>
       <label htmlFor={input.id} className="mt-[2px] text-gray-700 ">
@@ -153,6 +215,24 @@ function App() {
       onClick={() => colorHandler(color)}
     />
   ))
+
+  const renderUpdateInputs = (id: string, label: string, name: TInputName) => {
+    return (
+      <div className="flex flex-col gap-2">
+        <label id={id} className="mt-[2px] text-gray-700 ">
+          {label}
+        </label>
+        <Input
+          name={name}
+          id={id}
+          type={'text'}
+          value={updatedProduct[name]}
+          onChange={onChangeUpdateHandler}
+        />
+        <ErrorMessage message={errors[name]} />
+      </div>
+    )
+  }
 
   return (
     <main className="container mx-auto">
@@ -205,36 +285,16 @@ function App() {
         </form>
       </Modal>
 
-
-
-
       <Modal close={closeEdit} isOpen={isEditOpen} title="Edit The Product">
         <form
           action=""
           className="space-y-3 overflow-hidden"
-          onSubmit={submitHandler}
+          onSubmit={submitUpdateHandler}
         >
-          {renderFormInputList}
-
-          <Select
-            selected={selectedCategory}
-            setSelected={setSelectedCategory}
-          />
-
-          <div className="flex space-x-1 flex-wrap space-y-1">
-            {tempColor.map(color => (
-              <span
-                key={color}
-                className="rounded-xl p-0.5 text-white h-fit"
-                style={{ backgroundColor: color }}
-              >
-                {color}
-              </span>
-            ))}
-          </div>
-
-          <div className="flex gap-1 flex-wrap">{circleColorList}</div>
-          <ErrorMessage message={errors.colors} />
+          {renderUpdateInputs('title', 'Add Title', 'title')}
+          {renderUpdateInputs('description', 'Add Description', 'description')}
+          {renderUpdateInputs('imageURL', 'Add imageURL', 'imageURL')}
+          {renderUpdateInputs('price', 'Add price', 'price')}
 
           <div className="flex gap-2 mt-4">
             <Button className="w-full text-white bg-blue-500 hover:bg-blue-700">
@@ -242,7 +302,7 @@ function App() {
             </Button>
             <Button
               className="w-full text-white bg-gray-300 hover:bg-gray-400"
-              onClick={onClose}
+              onClick={closeEdit}
             >
               Close
             </Button>
