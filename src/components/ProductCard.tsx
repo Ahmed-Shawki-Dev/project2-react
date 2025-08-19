@@ -3,6 +3,7 @@ import { IProduct } from '../interfaces'
 import Button from '../UI/Button'
 import { textSlice } from '../utils/function'
 import CircleColor from './CircleColor'
+import {memo} from 'react'
 
 interface IProps {
   product: IProduct
@@ -74,4 +75,4 @@ const ProductCard = ({
   )
 }
 
-export default ProductCard
+export default memo(ProductCard)

@@ -1,19 +1,29 @@
-import { formInputList, productList, colors, categories } from './data'
-import ProductCard from './components/ProductCard'
-import Modal from './UI/Modal'
-import Button from './UI/Button'
-import { ChangeEvent, FormEvent, useState } from 'react'
-import Input from './UI/Input'
-import { IProduct } from './interfaces'
-import { productValidation } from './validation'
-import ErrorMessage from './components/ErrorMessage'
-import CircleColor from './components/CircleColor'
+import { ChangeEvent, FormEvent, useCallback, useState } from 'react'
 import { v4 as uuid } from 'uuid'
+
+// Data imports
+import { categories, colors, formInputList, productList } from './data'
+
+// Component imports
+import CircleColor from './components/CircleColor'
+import ErrorMessage from './components/ErrorMessage'
+import ProductCard from './components/ProductCard'
+
+// UI imports
+import Button from './UI/Button'
+import Input from './UI/Input'
+import Modal from './UI/Modal'
 import Select from './UI/Select'
+
+// Types & Interfaces
+import { IProduct } from './interfaces'
 import { TInputName } from './types'
+import { productValidation } from './validation'
 
 function App() {
-  /*  ---------------Obj---------------------   */
+  // =============================== 
+  // INITIAL OBJECTS & CONSTANTS
+  // ===============================
   const productObj = {
     id: '',
     title: '',
@@ -27,60 +37,44 @@ function App() {
     },
   }
 
-  /*_________State _________*/
-  const [isOpen, setIsOpen] = useState(false)
-
-  const [isEditOpen, setIsEditOpen] = useState(false)
-
-  const [product, setProduct] = useState<IProduct>(productObj)
-
-  const [updatedProduct, setUpdatedProduct] = useState<IProduct>(productObj)
-  
-  const [updatedProductIdx, setUpdatedProductIdx] = useState<number>(0)
-
-  const [products, setProducts] = useState<IProduct[]>(productList)
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({
+  const initialErrors = {
     title: '',
     description: '',
     imageURL: '',
     price: '',
     colors: '',
-  })
+  }
 
+  // ===============================
+  // STATE MANAGEMENT
+  // ===============================
+
+  // Modal states
+  const [isOpen, setIsOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+
+  // Product states
+  const [products, setProducts] = useState<IProduct[]>(productList)
+  const [product, setProduct] = useState<IProduct>(productObj)
+  const [updatedProduct, setUpdatedProduct] = useState<IProduct>(productObj)
+  const [updatedProductIdx, setUpdatedProductIdx] = useState<number>(0)
+
+  // Form states
+  const [errors, setErrors] = useState<{ [key: string]: string }>(initialErrors)
   const [tempColor, setTempColor] = useState<string[]>([])
-
   const [selectedCategory, setSelectedCategory] = useState(categories[0])
-  /* _________ Handler _________ */
-  function open() {
-    setErrors({
-      title: '',
-      description: '',
-      imageURL: '',
-      price: '',
-      colors: '',
-    })
+
+  // ===============================
+  // MODAL HANDLERS
+  // ===============================
+
+  const open = useCallback(() => {
+    setErrors(initialErrors)
     setIsOpen(true)
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  function close() {
-    setIsOpen(false)
-  }
-
-  function openEdit() {
-    setErrors({
-      title: '',
-      description: '',
-      imageURL: '',
-      price: '',
-      colors: '',
-    })
-    setIsEditOpen(true)
-  }
-  function closeEdit() {
-    setIsEditOpen(false)
-  }
-
+  const close = useCallback(() => setIsOpen(false), [])
   const onClose = () => {
     setProduct(productObj)
     setTempColor([])
@@ -88,29 +82,51 @@ function App() {
     close()
   }
 
-  const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const openEdit = useCallback(() => {
+    setErrors(initialErrors)
+    setIsEditOpen(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const closeEdit = useCallback(() => {
+    setUpdatedProduct(productObj)
+    setTempColor([])
+    setSelectedCategory(categories[0])
+    setIsEditOpen(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // ===============================
+  // FORM HANDLERS
+  // ===============================
+  const onChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setProduct(prev => ({
-      ...prev,
-      [name]: value,
-    }))
-    setErrors({
-      ...errors,
-      [name]: '',
-    })
-  }
+    setProduct(prev => ({ ...prev, [name]: value }))
+    setErrors(prev => ({ ...prev, [name]: '' }))
+  }, [])
 
   const onChangeUpdateHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setUpdatedProduct(prev => ({
-      ...prev,
-      [name]: value,
-    }))
-    setErrors({
-      ...errors,
-      [name]: '',
-    })
+    setUpdatedProduct(prev => ({ ...prev, [name]: value }))
+    setErrors({ ...errors, [name]: '' })
   }
+
+  const colorHandler = (color: string): void => {
+    if (tempColor.includes(color)) {
+      setTempColor(prev => prev.filter(c => c !== color))
+      return
+    }
+    if (updatedProduct.colors.includes(color)) {
+      setTempColor(prev => prev.filter(c => c !== color))
+      return
+    }
+    setTempColor(prev => [...prev, color])
+    setErrors(prev => ({ ...prev, colors: '' }))
+  }
+
+  // ===============================
+  // *SUBMIT HANDLERS
+  // ===============================
 
   const submitHandler = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault()
@@ -119,13 +135,13 @@ function App() {
       ...product,
       colors: tempColor,
     })
+
     const hasErrorMsg = Object.values(validationErrors).some(
       value => value !== ''
     )
 
     if (hasErrorMsg) {
       setErrors(validationErrors)
-      console.log(validationErrors)
       return
     }
 
@@ -133,68 +149,87 @@ function App() {
       { ...product, id: uuid(), colors: tempColor, category: selectedCategory },
       ...prev,
     ])
+
     setProduct(productObj)
     setTempColor([])
     onClose()
   }
 
-
   const submitUpdateHandler = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault()
-    const { title, description, price, imageURL, colors } = updatedProduct
 
+    const { title, description, price, imageURL } = updatedProduct
     const validationErrors = productValidation({
       title,
       description,
       price,
       imageURL,
-      colors
+      colors: [...updatedProduct.colors, ...tempColor],
     })
+
     const hasErrorMsg = Object.values(validationErrors).some(
       value => value !== ''
     )
 
     if (hasErrorMsg) {
       setErrors(validationErrors)
-      console.log(validationErrors)
       return
     }
 
+    const updatedProducts = [...products]
+    const mergedColors = Array.from(
+      new Set([...updatedProduct.colors, ...tempColor])
+    )
 
-      const updatedProducts=[...products];
-      updatedProducts[updatedProductIdx] = updatedProduct
-      setProducts(updatedProducts);
+    updatedProducts[updatedProductIdx] = {
+      ...updatedProduct,
+      colors: mergedColors,
+    }
 
-
-
-
+    setProducts(updatedProducts)
     setUpdatedProduct(productObj)
     setTempColor([])
     closeEdit()
   }
 
-  const colorHandler = (color: string): void => {
-    setTempColor(prev =>
-      prev.includes(color) ? prev.filter(c => c !== color) : [...prev, color]
-    )
-    setErrors(prev => ({ ...prev, colors: '' }))
-  }
-console.log(updatedProductIdx)
-  /*_________ Render _________*/
-  const renderProductList = products.map((product, idx) => (
-      <ProductCard
-        key={product.id}
-        product={product}
-        setUpdatedProduct={setUpdatedProduct}
-        openEdit={openEdit}
-        setUpdatedProductIdx={setUpdatedProductIdx}
-        idx={idx}
+  // ===============================
+  // RENDER HELPERS
+  // ===============================
+
+  const renderUpdateInputs = (id: string, label: string, name: TInputName) => (
+    <div className="flex flex-col gap-2">
+      <label id={id} className="mt-[2px] text-gray-700">
+        {label}
+      </label>
+      <Input
+        name={name}
+        id={id}
+        type="text"
+        value={updatedProduct[name]}
+        onChange={onChangeUpdateHandler}
       />
+      <ErrorMessage message={errors[name]} />
+    </div>
+  )
+
+  // ===============================
+  // RENDER LISTS
+  // ===============================
+
+  const renderProductList = products.map((product, idx) => (
+    <ProductCard
+      key={product.id}
+      product={product}
+      setUpdatedProduct={setUpdatedProduct}
+      openEdit={openEdit}
+      setUpdatedProductIdx={setUpdatedProductIdx}
+      idx={idx}
+    />
   ))
-  
+
   const renderFormInputList = formInputList.map(input => (
     <div className="flex flex-col gap-2" key={input.id}>
-      <label htmlFor={input.id} className="mt-[2px] text-gray-700 ">
+      <label htmlFor={input.id} className="mt-[2px] text-gray-700">
         {input.label}
       </label>
       <Input
@@ -216,39 +251,23 @@ console.log(updatedProductIdx)
     />
   ))
 
-  const renderUpdateInputs = (id: string, label: string, name: TInputName) => {
-    return (
-      <div className="flex flex-col gap-2">
-        <label id={id} className="mt-[2px] text-gray-700 ">
-          {label}
-        </label>
-        <Input
-          name={name}
-          id={id}
-          type={'text'}
-          value={updatedProduct[name]}
-          onChange={onChangeUpdateHandler}
-        />
-        <ErrorMessage message={errors[name]} />
-      </div>
-    )
-  }
+  // ===============================
+  // * MAIN RENDER
+  // ===============================
 
   return (
     <main className="container mx-auto">
       <Button className="my-5 bg-indigo-500" onClick={open}>
         ADD
       </Button>
+
       <div className="flex flex-wrap justify-between gap-4 m-5 rounded-md">
         {renderProductList}
       </div>
 
+      {/* ADD PRODUCT MODAL */}
       <Modal close={close} isOpen={isOpen} title="Add A Product">
-        <form
-          action=""
-          className="space-y-3 overflow-hidden"
-          onSubmit={submitHandler}
-        >
+        <form className="space-y-3 overflow-hidden" onSubmit={submitHandler}>
           {renderFormInputList}
 
           <Select
@@ -285,9 +304,9 @@ console.log(updatedProductIdx)
         </form>
       </Modal>
 
+      {/* EDIT PRODUCT MODAL */}
       <Modal close={closeEdit} isOpen={isEditOpen} title="Edit The Product">
         <form
-          action=""
           className="space-y-3 overflow-hidden"
           onSubmit={submitUpdateHandler}
         >
@@ -295,6 +314,28 @@ console.log(updatedProductIdx)
           {renderUpdateInputs('description', 'Add Description', 'description')}
           {renderUpdateInputs('imageURL', 'Add imageURL', 'imageURL')}
           {renderUpdateInputs('price', 'Add price', 'price')}
+
+          <Select
+            selected={updatedProduct.category}
+            setSelected={value =>
+              setUpdatedProduct({ ...updatedProduct, category: value })
+            }
+          />
+
+          <div className="flex space-x-1 flex-wrap space-y-1">
+            {tempColor.concat(updatedProduct.colors).map(color => (
+              <span
+                key={color}
+                className="rounded-xl p-0.5 text-white h-fit"
+                style={{ backgroundColor: color }}
+              >
+                {color}
+              </span>
+            ))}
+          </div>
+
+          <div className="flex gap-1 flex-wrap">{circleColorList}</div>
+          <ErrorMessage message={errors.colors} />
 
           <div className="flex gap-2 mt-4">
             <Button className="w-full text-white bg-blue-500 hover:bg-blue-700">

@@ -1,7 +1,8 @@
 import {Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
-import { ReactNode } from 'react';
+import { ReactNode,memo } from 'react';
 // import { useState } from 'react'
 // import Button from '../UI/Button';
+
 interface IProps{
     isOpen:boolean;
     close:()=>void;
@@ -37,4 +38,4 @@ return (
 )
 }
 
-export default Modal;
+export default memo(Modal)

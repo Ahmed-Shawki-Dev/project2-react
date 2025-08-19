@@ -1,12 +1,11 @@
-import { ButtonHTMLAttributes, ReactNode } from "react";
-
+import { ButtonHTMLAttributes, ReactNode, memo } from 'react'
 interface IProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode;
-  className?: string;
-  width?: 'w-full' | 'w-fit';
+  children: ReactNode
+  className?: string
+  width?: 'w-full' | 'w-fit'
 }
 
-const Button = ({ children, className,width='w-full', ...rest }: IProps) => {
+const Button = ({ children, className, width = 'w-full', ...rest }: IProps) => {
   return (
     <button
       className={`${className} ${width}
@@ -21,7 +20,7 @@ const Button = ({ children, className,width='w-full', ...rest }: IProps) => {
     >
       {children}
     </button>
-  );
-};
+  )
+}
 
-export default Button;
+export default memo(Button)
